@@ -1,20 +1,22 @@
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace etl.Library
 {
-    public abstract class AbstractCommand : ICommand
+    public abstract class BaseEngine
     {
-        private readonly Stopwatch _sw;
-        public AbstractCommand()
+        private Stopwatch _sw;
+
+        public BaseEngine()
         {
             _sw = new Stopwatch();
         }
 
-        public void Run()
+        public async Task Run(string jobID)
         {
             _sw.Start();
-            Execute();
+            await Execute(jobID);
             _sw.Stop();
         }
 
@@ -23,6 +25,6 @@ namespace etl.Library
             return _sw.Elapsed;
         }
 
-        public abstract void Execute();
+        protected abstract Task Execute(string jobID);
     }
 }

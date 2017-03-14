@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using etl.Library;
+﻿using etl.Repositories;
+using etl.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Strategies;
 
 namespace etl
 {
@@ -37,10 +33,17 @@ namespace etl
             {
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             });
+
+            services.AddDistributedRedisCache(option =>
+            {
+                option.Configuration = "127.0.0.1";
+                option.InstanceName = "master";
+            });
         }
 
         public virtual void SetupRepositories(IServiceCollection services)
         {
+            services.AddScoped<IDataStoreRepository, DataStoreRepository>();
         }
 
         public virtual void SetupServices(IServiceCollection services)
@@ -49,11 +52,8 @@ namespace etl
 
         public virtual void SetupLibrary(IServiceCollection services)
         {
-            // services.AddScoped<CommandEngine>();
-            // services.AddScoped<IPopulateStrategy, TestCommandStrategy>();
-            // services.AddScoped<IHydrateStrategy, TestHydrateStrategy>();
-            // services.AddScoped<ITransformStrategy, TestTransformStrategy>();
-            // services.AddScoped<IOutputStrategy, TestOutputStrategy>();
+            services.AddScoped<DataStoreService>();
+            services.AddScoped<EtlService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
